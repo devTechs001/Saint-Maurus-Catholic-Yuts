@@ -1,0 +1,24 @@
+# Single Render web service for a TEST deployment. No secrets or PDFs in Git.
+# Keep the repository root as the Render root directory so both packages are built.
+services:
+  - type: web
+    name: st-maurus-youth
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev --prefix preview && npm run build --prefix preview && npm ci --include=dev --prefix server && npm run build --prefix server
+    startCommand: export WEB_DIST="$PWD/preview/dist"; npm start --prefix server
+    healthCheckPath: /health/ready
+    envVars:
+      - key: NODE_VERSION
+        value: 22.22.0
+      - key: NODE_ENV
+        value: production
+      # This assumes exactly one trusted reverse proxy; verify with the actual deployment.
+      - key: TRUST_PROXY
+        value: "true"
+      # Render generates a 256-bit secret; keep it stable to avoid invalidating sessions.
+      - key: JWT_SECRET
+        generateValue: true
+      # Enter the MongoDB connection string privately in Render, never in the repository.
+      - key: MONGODB_URI
+        sync: false

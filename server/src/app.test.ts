@@ -174,7 +174,7 @@ test('private project PDF downloads require an admin and are not static assets',
   const id = '507f1f77bcf86cd799439011';
   const originalNodeEnv=process.env.NODE_ENV, originalDir=process.env.PRIVATE_DOCS_DIR, originalWeb=process.env.WEB_DIST;
   const fixture=fs.mkdtempSync(path.join(os.tmpdir(),'maurus-private-doc-test-'));
-  for (const name of ['client-proposal.pdf','agreement-compliance-milestones.pdf','phase-14-terms-compliance.pdf','phase-15-church-theme.pdf','phase-16-map-themes.pdf']) fs.writeFileSync(path.join(fixture,name),'%PDF-1.4\nTest fixture only\n%%EOF');
+  for (const name of ['client-proposal.pdf','agreement-compliance-milestones.pdf','phase-14-terms-compliance.pdf','phase-15-church-theme.pdf','phase-16-map-themes.pdf','phase-17-render-deployment.pdf']) fs.writeFileSync(path.join(fixture,name),'%PDF-1.4\nTest fixture only\n%%EOF');
   process.env.PRIVATE_DOCS_DIR=fixture; delete process.env.WEB_DIST; process.env.NODE_ENV='test';
   const token=jwt.sign({ver:1},process.env.JWT_SECRET!,{subject:id,algorithm:'HS256'});
   try {
@@ -194,6 +194,8 @@ test('private project PDF downloads require an admin and are not static assets',
     assert.ok(list.body.documents.some((doc:any)=>doc.file==='phase-14-terms-compliance.pdf'));
     assert.ok(list.body.documents.some((doc:any)=>doc.file==='phase-15-church-theme.pdf'));
     assert.ok(list.body.documents.some((doc:any)=>doc.file==='phase-16-map-themes.pdf'));
+    assert.ok(list.body.documents.some((doc:any)=>doc.file==='phase-17-render-deployment.pdf'));
+    await request(app).get('/api/admin/documents/phase-17-render-deployment.pdf').set('Cookie',`session=${token}`).expect(200);
     await request(app).get('/api/admin/documents/phase-16-map-themes.pdf').set('Cookie',`session=${token}`).expect(200);
     await request(app).get('/api/admin/documents/phase-15-church-theme.pdf').set('Cookie',`session=${token}`).expect(200);
     const agreement=await request(app).get('/api/admin/documents/agreement-compliance-milestones.pdf').set('Cookie',`session=${token}`).expect(200);
